@@ -184,8 +184,9 @@ img { max-width: 100%; display: block; }
 /* ─── HERO ─── */
 .hero {
   position: relative;
-  height: 100svh;
-  min-height: 600px;
+  height: 42vh;
+  min-height: 320px;
+  max-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,90 +203,38 @@ img { max-width: 100%; display: block; }
   z-index: 2;
   width: 100%;
   text-align: center;
-  padding: 80px 20px 0;
-}
-.hero-badge {
-  display: inline-block;
-  background: rgba(232, 200, 64, 0.1);
-  border: 1px solid rgba(232, 200, 64, 0.25);
-  color: var(--gold);
-  padding: 5px 16px;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 20px;
-  animation: fadeDown 0.9s ease both;
+  padding: 68px 20px 0;
 }
 .hero-title {
   font-weight: 900;
-  font-size: clamp(3.2rem, 10vw, 7.5rem);
-  line-height: 0.92;
-  margin-bottom: 14px;
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  line-height: 1;
+  margin-bottom: 8px;
   animation: fadeDown 0.9s 0.08s ease both;
 }
-.title-line { display: block; color: var(--text); }
+.title-line { display: inline; color: var(--text); }
 .title-accent {
-  display: block;
+  display: inline;
   background: linear-gradient(130deg, var(--gold) 0%, var(--purple) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .hero-sub {
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-3);
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 18px;
   animation: fadeDown 0.9s 0.12s ease both;
-}
-.hero-desc {
-  max-width: 520px;
-  margin: 0 auto 28px;
-  color: var(--text-2);
-  font-size: 1rem;
-  animation: fadeDown 0.9s 0.16s ease both;
 }
 .hero-ctas {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 44px;
-  animation: fadeDown 0.9s 0.2s ease both;
-}
-.hero-stats {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  animation: fadeDown 0.9s 0.24s ease both;
-}
-.stat { text-align: center; }
-.stat-num { display: block; font-size: 1.8rem; font-weight: 900; color: var(--gold); }
-.stat-label { display: block; font-size: 0.72rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; }
-.stat-divider { width: 1px; height: 36px; background: var(--border); }
-.scroll-hint {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  text-align: center;
-  color: var(--text-3);
-  font-size: 0.72rem;
-}
-.scroll-arrow {
-  width: 16px;
-  height: 16px;
-  border-right: 2px solid var(--text-3);
-  border-bottom: 2px solid var(--text-3);
-  transform: rotate(45deg);
-  margin: 8px auto 0;
-  animation: bounce 1.8s infinite;
+  animation: fadeDown 0.9s 0.16s ease both;
 }
 
 /* ─── BUTTONS ─── */
@@ -732,7 +681,7 @@ img { max-width: 100%; display: block; }
 @media (max-width: 480px) {
   .ig-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-links { grid-template-columns: 1fr; }
-  .hero-title { font-size: clamp(2.8rem, 14vw, 4rem); }
+  .hero-title { font-size: clamp(1.7rem, 10vw, 2.8rem); }
   .filter-pills { gap: 6px; }
   .pill { padding: 6px 12px; font-size: 0.79rem; }
 }

@@ -9,7 +9,6 @@
 
 const express = require('express');
 const path = require('path');
-const fetch = require('node-fetch');
 const cors = require('cors');
 const cheerio = require('cheerio');
 const rateLimit = require('express-rate-limit');
@@ -48,10 +47,8 @@ function setCache(key, data, ttlMs) {
 
 // ─── Category Detection ───────────────────────────────────────────────────────
 const CATEGORIES = {
-  pokemon: ['pokemon', 'pikachu', 'charizard', 'mewtwo', 'eevee', 'snorlax', 'gengar', 'bulbasaur', 'squirtle', 'blastoise', 'venusaur', 'gyarados', 'umbreon', 'espeon', 'vaporeon', 'mew', 'lugia', 'ho-oh', 'rayquaza', 'groudon', 'kyogre'],
-  yugioh:  ['yugioh', 'yu-gi-oh', 'yu gi oh', 'exodia', 'blue-eyes', 'blue eyes', 'dark magician', 'red-eyes', 'red eyes', 'duel monster', 'yugi', 'kaiba', 'synchro', 'xyz', 'fusion'],
-  wwe:     ['wwe', 'wrestling', 'wrestler', 'raw', 'smackdown', 'john cena', 'undertaker', 'the rock', 'stone cold', 'hulk hogan', 'roman reigns'],
-  dbz:     ['dragon ball', 'dragonball', 'dbz', 'goku', 'vegeta', 'gohan', 'piccolo', 'frieza', 'cell', 'buu', 'saiyan', 'super saiyan', 'kamehameha'],
+  pokemon: ['pokemon', 'pikachu', 'charizard', 'mewtwo', 'eevee', 'snorlax', 'gengar', 'bulbasaur', 'squirtle', 'blastoise', 'venusaur', 'gyarados', 'umbreon', 'espeon', 'vaporeon', 'mew', 'lugia', 'ho-oh', 'rayquaza', 'groudon', 'kyogre', 'pokémon', 'ptcg', 'tcg card'],
+  yugioh:  ['yugioh', 'yu-gi-oh', 'yu gi oh', 'exodia', 'blue-eyes', 'blue eyes', 'dark magician', 'red-eyes', 'red eyes', 'duel monster', 'yugi', 'kaiba', 'synchro', 'xyz', 'fusion', 'konami', 'ygo'],
 };
 
 function detectCategory(title) {
@@ -70,13 +67,16 @@ app.get('/api/ebay', async (req, res) => {
 
   try {
     const rssUrl = 'https://www.ebay.com/sch/i.html?_ssn=ig_pokemarket92&_rss=1&_sop=10';
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(rssUrl, {
+      signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'Accept': 'application/rss+xml, application/xml, text/xml, */*',
       },
-      timeout: 10000,
     });
+    clearTimeout(timer);
 
     if (!response.ok) throw new Error(`eBay RSS responded with ${response.status}`);
 
@@ -85,19 +85,37 @@ app.get('/api/ebay', async (req, res) => {
 
     const items = [];
     $('item').each((_, el) => {
-      const title   = cheerio.load(el, { xmlMode: true })('title').text().trim();
-      const link    = cheerio.load(el, { xmlMode: true })('link').text().trim();
-      const desc    = cheerio.load(el, { xmlMode: true })('description').text();
-      const pubDate = cheerio.load(el, { xmlMode: true })('pubDate').text().trim();
+      const $el     = cheerio.load(el, { xmlMode: true });
+      const title   = $el('title').text().trim();
+      const link    = $el('link').text().trim();
+      const desc    = $el('description').text();
+      const pubDate = $el('pubDate').text().trim();
 
+      // Extract price from title or description HTML
       const priceMatch = (title + ' ' + desc).match(/\$[\d,]+\.?\d*/);
       const price = priceMatch ? priceMatch[0] : null;
 
+      // Extract best-quality image from description
       const $desc = cheerio.load(desc);
-      const image = $desc('img').first().attr('src') || null;
+      let image = null;
+      $desc('img').each((_, img) => {
+        const src = cheerio.load(img)('img').attr('src') || $desc(img).attr('src');
+        if (src && !image) image = src;
+        // Prefer larger images (eBay serves s-l140, s-l300, s-l500, s-l1600)
+        if (src && src.includes('s-l') && image) {
+          const curSize  = parseInt((image.match(/s-l(\d+)/) || [0, 0])[1]);
+          const thisSize = parseInt((src.match(/s-l(\d+)/)   || [0, 0])[1]);
+          if (thisSize > curSize) image = src;
+        }
+      });
+      // Upgrade thumb to larger size if possible
+      if (image) image = image.replace(/s-l\d+/, 's-l500');
+
+      // Plain-text excerpt from description (strip HTML tags)
+      const descText = desc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
 
       if (title && link) {
-        items.push({ title, link, image, price, pubDate, category: detectCategory(title) });
+        items.push({ title, link, image, price, pubDate, descText, category: detectCategory(title) });
       }
     });
 
@@ -107,7 +125,7 @@ app.get('/api/ebay', async (req, res) => {
     res.json({ source: 'live', items });
   } catch (err) {
     console.error('eBay fetch error:', err.message);
-    res.json({ source: 'fallback', items: getFallbackCards() });
+    res.json({ source: 'error', items: [] });
   }
 });
 
@@ -122,7 +140,10 @@ app.get('/api/instagram', async (req, res) => {
 
   try {
     const igUrl = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`;
+    const igController = new AbortController();
+    const igTimer = setTimeout(() => igController.abort(), 10000);
     const response = await fetch(igUrl, {
+      signal: igController.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 9; GM1903 Build/PKQ1.190110.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/75.0.3770.143 Mobile Safari/537.36 Instagram 101.0.0.15.120',
         'x-ig-app-id': '936619743392459',
@@ -131,8 +152,8 @@ app.get('/api/instagram', async (req, res) => {
         'Referer': 'https://www.instagram.com/',
         'Origin': 'https://www.instagram.com',
       },
-      timeout: 10000,
     });
+    clearTimeout(igTimer);
 
     if (!response.ok) throw new Error(`Instagram responded with ${response.status}`);
 
@@ -169,24 +190,6 @@ app.get('*', (req, res) => {
   }
 });
 
-// ─── Fallback Demo Cards ──────────────────────────────────────────────────────
-function getFallbackCards() {
-  return [
-    { title: "Charizard VMAX Rainbow Rare — Sword & Shield Champion's Path", price: '$89.99', category: 'pokemon', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: 'https://images.pokemontcg.io/swshp/SWSH050_hires.png', featured: true },
-    { title: 'Pikachu V Full Art — Vivid Voltage', price: '$24.99', category: 'pokemon', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: 'https://images.pokemontcg.io/swsh4/43_hires.png' },
-    { title: 'Mewtwo GX Rainbow Rare — Hidden Fates', price: '$65.00', category: 'pokemon', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: 'https://images.pokemontcg.io/sm11a/73_hires.png', featured: true },
-    { title: 'Umbreon VMAX Alternate Art — Evolving Skies', price: '$75.00', category: 'pokemon', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null, featured: true },
-    { title: 'Rayquaza VMAX Alternate Art — Evolving Skies', price: '$95.00', category: 'pokemon', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null, featured: true },
-    { title: 'Blue-Eyes White Dragon — Legend of Blue Eyes LP', price: '$45.00', category: 'yugioh', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null, featured: true },
-    { title: 'Dark Magician Girl Secret Rare — MFC-000', price: '$35.00', category: 'yugioh', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null },
-    { title: 'Exodia the Forbidden One LOB-124 — 1st Ed NM', price: '$120.00', category: 'yugioh', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null, featured: true },
-    { title: 'Red-Eyes Black Dragon — LOB-070 1st Edition', price: '$65.00', category: 'yugioh', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null },
-    { title: 'John Cena 2004 Topps Heritage Rookie WWE Card', price: '$12.50', category: 'wwe', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null },
-    { title: 'The Rock 1998 Comic Images WWF Card #32', price: '$9.99', category: 'wwe', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null },
-    { title: 'Goku Super Saiyan Dragon Ball Z Score Card 2000', price: '$18.00', category: 'dbz', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null },
-    { title: 'Vegeta Ultra Rare Panini Dragon Ball Super Card', price: '$22.00', category: 'dbz', link: 'https://www.ebay.com/usr/ig_pokemarket92', image: null },
-  ];
-}
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {

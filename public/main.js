@@ -10,8 +10,8 @@ let allCards = [];
 let activeFilter = 'all';
 let activeSort = 'newest';
 
-const CAT_EMOJI  = { pokemon: '⚡', yugioh: '🃏', wwe: '🏆', dbz: '🔥', other: '✨' };
-const CAT_LABEL  = { pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh', wwe: 'WWE', dbz: 'Dragon Ball Z', other: 'Collectible' };
+const CAT_EMOJI  = { pokemon: '⚡', yugioh: '🃏', other: '✨' };
+const CAT_LABEL  = { pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh', other: 'Collectible' };
 
 // ─── THREE.JS HERO ────────────────────────────────────────────────────────────
 function initHeroScene() {
@@ -247,10 +247,12 @@ async function fetchEbay() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     allCards   = data.items || [];
-    if (data.source === 'fallback') document.getElementById('listings-error').style.display = 'block';
+    if (data.source === 'error') {
+      document.getElementById('listings-error').style.display = 'block';
+    }
   } catch (e) {
     console.warn('eBay fetch failed:', e.message);
-    allCards = fallbackCards();
+    allCards = [];
     document.getElementById('listings-error').style.display = 'block';
   } finally {
     document.getElementById('listings-loading').style.display = 'none';
@@ -281,25 +283,6 @@ async function fetchInstagram(username, gridId) {
       </div>`;
   }
   observeElements();
-}
-
-// ─── DEMO CARDS ───────────────────────────────────────────────────────────────
-function fallbackCards() {
-  return [
-    { title:"Charizard VMAX Rainbow Rare — Champion's Path", price:'$89.99', category:'pokemon', link:'https://www.ebay.com/usr/ig_pokemarket92', image:'https://images.pokemontcg.io/swshp/SWSH050_hires.png', featured:true },
-    { title:'Pikachu V Full Art — Vivid Voltage',            price:'$24.99', category:'pokemon', link:'https://www.ebay.com/usr/ig_pokemarket92', image:'https://images.pokemontcg.io/swsh4/43_hires.png' },
-    { title:'Mewtwo GX Rainbow Rare — Hidden Fates',         price:'$65.00', category:'pokemon', link:'https://www.ebay.com/usr/ig_pokemarket92', image:'https://images.pokemontcg.io/sm11a/73_hires.png', featured:true },
-    { title:'Umbreon VMAX Alternate Art — Evolving Skies',   price:'$75.00', category:'pokemon', link:'https://www.ebay.com/usr/ig_pokemarket92', image:null, featured:true },
-    { title:'Rayquaza VMAX Alternate Art — Evolving Skies',  price:'$95.00', category:'pokemon', link:'https://www.ebay.com/usr/ig_pokemarket92', image:null, featured:true },
-    { title:'Blue-Eyes White Dragon — Legend of Blue Eyes',  price:'$45.00', category:'yugioh',  link:'https://www.ebay.com/usr/ig_pokemarket92', image:null, featured:true },
-    { title:'Dark Magician Girl Secret Rare — MFC-000',      price:'$35.00', category:'yugioh',  link:'https://www.ebay.com/usr/ig_pokemarket92', image:null },
-    { title:'Exodia the Forbidden One LOB-124 — 1st Ed NM',  price:'$120.00',category:'yugioh',  link:'https://www.ebay.com/usr/ig_pokemarket92', image:null, featured:true },
-    { title:'Red-Eyes Black Dragon — LOB-070 1st Edition',   price:'$65.00', category:'yugioh',  link:'https://www.ebay.com/usr/ig_pokemarket92', image:null },
-    { title:'John Cena 2004 Topps Heritage Rookie',          price:'$12.50', category:'wwe',     link:'https://www.ebay.com/usr/ig_pokemarket92', image:null },
-    { title:'The Rock 1998 Comic Images WWF Card #32',       price:'$9.99',  category:'wwe',     link:'https://www.ebay.com/usr/ig_pokemarket92', image:null },
-    { title:'Goku Super Saiyan Dragon Ball Z Score 2000',    price:'$18.00', category:'dbz',     link:'https://www.ebay.com/usr/ig_pokemarket92', image:null },
-    { title:'Vegeta Ultra Rare Panini Dragon Ball Super',    price:'$22.00', category:'dbz',     link:'https://www.ebay.com/usr/ig_pokemarket92', image:null },
-  ];
 }
 
 // ─── FILTERS ──────────────────────────────────────────────────────────────────
