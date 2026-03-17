@@ -221,10 +221,7 @@ img { max-width: 100%; display: block; }
 .title-line { display: inline; color: var(--text); }
 .title-accent {
   display: inline;
-  background: linear-gradient(130deg, var(--gold) 0%, var(--purple) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text);
 }
 .hero-sub {
   font-size: 0.8rem;
@@ -723,3 +720,4 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
