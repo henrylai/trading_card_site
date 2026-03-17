@@ -66,60 +66,59 @@ app.get('/api/ebay', async (req, res) => {
   if (cached) return res.json({ source: 'cache', items: cached });
 
   try {
-    const rssUrl = 'https://www.ebay.com/sch/i.html?_ssn=ig_pokemarket92&_rss=1&_sop=10';
+    // eBay search page for this seller (returns HTML from datacenter IPs)
+    const url = 'https://www.ebay.com/sch/i.html?_ssn=ig_pokemarket92&_sop=10&_ipg=60';
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    const response = await fetch(rssUrl, {
+    const timer = setTimeout(() => controller.abort(), 12000);
+    const response = await fetch(url, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
       },
     });
     clearTimeout(timer);
 
-    if (!response.ok) throw new Error(`eBay RSS responded with ${response.status}`);
+    if (!response.ok) throw new Error(`eBay responded with ${response.status}`);
 
-    const xml = await response.text();
-    const $ = cheerio.load(xml, { xmlMode: true });
-
+    const html = await response.text();
+    const $ = cheerio.load(html);
     const items = [];
-    $('item').each((_, el) => {
-      const $el     = cheerio.load(el, { xmlMode: true });
-      const title   = $el('title').text().trim();
-      const link    = $el('link').text().trim();
-      const desc    = $el('description').text();
-      const pubDate = $el('pubDate').text().trim();
 
-      // Extract price from title or description HTML
-      const priceMatch = (title + ' ' + desc).match(/\$[\d,]+\.?\d*/);
-      const price = priceMatch ? priceMatch[0] : null;
+    $('.s-item').not('.s-item--placeholder').each((_, el) => {
+      const $el = $(el);
 
-      // Extract best-quality image from description
-      const $desc = cheerio.load(desc);
-      let image = null;
-      $desc('img').each((_, img) => {
-        const src = cheerio.load(img)('img').attr('src') || $desc(img).attr('src');
-        if (src && !image) image = src;
-        // Prefer larger images (eBay serves s-l140, s-l300, s-l500, s-l1600)
-        if (src && src.includes('s-l') && image) {
-          const curSize  = parseInt((image.match(/s-l(\d+)/) || [0, 0])[1]);
-          const thisSize = parseInt((src.match(/s-l(\d+)/)   || [0, 0])[1]);
-          if (thisSize > curSize) image = src;
-        }
-      });
-      // Upgrade thumb to larger size if possible
+      // Title — strip "New Listing" prefix eBay injects
+      const title = $el.find('.s-item__title').first().text()
+        .replace(/^New Listing\s*/i, '').trim();
+      if (!title || title === 'Shop on eBay') return;
+
+      // Direct item link (strip tracking query string)
+      let link = $el.find('a.s-item__link').first().attr('href') || '';
+      if (link.includes('?')) link = link.split('?')[0];
+      if (!link) return;
+
+      // Price (take first price, drop "to $X" range suffix)
+      const price = ($el.find('.s-item__price').first().text().trim()
+        .match(/\$[\d,]+\.?\d*/)?.[0]) || null;
+
+      // Image — prefer largest eBay size available
+      let image = $el.find('img.s-item__image-img').first().attr('src')
+        || $el.find('img').first().attr('src') || null;
+      if (image && (image.includes('/gif/') || image.length < 15)) image = null;
       if (image) image = image.replace(/s-l\d+/, 's-l500');
 
-      // Plain-text excerpt from description (strip HTML tags)
-      const descText = desc.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+      // Condition
+      const condition = $el.find('.SECONDARY_INFO').first().text().trim() || null;
 
-      if (title && link) {
-        items.push({ title, link, image, price, pubDate, descText, category: detectCategory(title) });
-      }
+      items.push({ title, link, image, price, condition, category: detectCategory(title) });
     });
 
-    if (items.length === 0) throw new Error('No items parsed from RSS');
+    console.log(`eBay HTML scrape: found ${items.length} items`);
+    if (items.length === 0) throw new Error('No items parsed from HTML — selector may have changed');
 
     setCache(cacheKey, items, 10 * 60 * 1000);
     res.json({ source: 'live', items });

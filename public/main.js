@@ -35,7 +35,9 @@ function initHeroScene() {
   const purpleLight = new THREE.PointLight(0x9b6dff, 3, 22);
   purpleLight.position.set(-5, -2, 4);
   scene.add(purpleLight);
-  scene.add(Object.assign(new THREE.PointLight(0x5b8cf7, 1.2, 20), { position: { x: 0, y: -4, z: 3 } }));
+  const blueLight = new THREE.PointLight(0x5b8cf7, 1.2, 20);
+  blueLight.position.set(0, -4, 3);
+  scene.add(blueLight);
 
   // ── Cards ──
   const PALETTE = [
