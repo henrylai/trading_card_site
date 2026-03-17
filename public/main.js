@@ -129,12 +129,19 @@ function initHeroScene() {
 
   // ── Raycasting ──
   const raycaster = new THREE.Raycaster();
-  const mouse     = new THREE.Vector2();
-  document.getElementById('hero').addEventListener('mousemove', e => {
+  const mouse     = new THREE.Vector2(-9999, -9999);
+  const heroEl = document.getElementById('hero');
+  heroEl.addEventListener('mousemove', e => {
     const r = canvas.getBoundingClientRect();
     mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
   });
+  heroEl.addEventListener('mouseleave', () => mouse.set(-9999, -9999));
+  heroEl.addEventListener('touchstart', e => {
+    const r = canvas.getBoundingClientRect();
+    mouse.x = ((e.touches[0].clientX - r.left) / r.width) * 2 - 1;
+    mouse.y = -((e.touches[0].clientY - r.top) / r.height) * 2 + 1;
+  }, { passive: true });
 
   // ── Resize ──
   window.addEventListener('resize', () => {
@@ -161,7 +168,8 @@ function initHeroScene() {
       card.rotation.z = u.baseRotZ + Math.sin(t * s * 0.6 + u.phase) * 0.055;
       if (hits.has(card.uuid)) {
         card.position.z += (u.baseZ + 0.75 - card.position.z) * 0.12;
-        card.rotation.y += (Math.PI - card.rotation.y) * 0.1;
+        card.rotation.y += (0 - card.rotation.y) * 0.1;
+        card.rotation.x += (0 - card.rotation.x) * 0.1;
       } else {
         card.position.z += (u.baseZ - card.position.z) * 0.07;
         card.rotation.y += (Math.cos(u.phase) * 0.38 - card.rotation.y) * 0.05;
