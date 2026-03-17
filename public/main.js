@@ -249,13 +249,17 @@ async function fetchEbay() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     allCards   = data.items || [];
-    if (data.source === 'error') {
-      document.getElementById('listings-error').style.display = 'block';
-    }
+    if (data.source === 'error' || allCards.length === 0) throw new Error('Empty or error response');
   } catch (e) {
     console.warn('eBay fetch failed:', e.message);
     allCards = [];
     document.getElementById('listings-error').style.display = 'block';
+    
+    // Hide filters and "View All" button since we are showing the fallback banner
+    const filters = document.querySelector('.filters-bar');
+    if (filters) filters.style.display = 'none';
+    const viewAll = document.getElementById('view-all-wrap');
+    if (viewAll) viewAll.style.display = 'none';
   } finally {
     document.getElementById('listings-loading').style.display = 'none';
     renderCards();

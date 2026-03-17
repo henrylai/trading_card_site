@@ -97,16 +97,19 @@
         <div class="spinner-ring"></div>
         <p>Fetching live listings…</p>
       </div>
-      <div id="listings-error" class="error-state" style="display:none;">
-        <span class="error-icon">📡</span>
-        <p>Could not load live listings. <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener">Browse the store directly ↗</a></p>
+      <div id="listings-error" class="fallback-banner" style="display:none;">
+        <div class="fallback-content">
+          <h3>Explore Our Full Inventory</h3>
+          <p>Our latest Pokémon & Yu-Gi-Oh heat is listed exclusively on eBay. Shop the full collection securely directly from our store.</p>
+          <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-primary" style="margin-top:1.5rem;font-size:1.1rem;padding:12px 24px;">Shop on eBay ↗</a>
+        </div>
       </div>
       <div id="card-grid" class="card-grid"></div>
       <div id="listings-empty" class="empty-state" style="display:none;">
         <span>🃏</span>
         <p>No cards in this category right now.<br/><a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank">Browse the full store ↗</a></p>
       </div>
-      <div class="view-all-wrap fade-in">
+      <div class="view-all-wrap fade-in" id="view-all-wrap">
         <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">View All on eBay ↗</a>
       </div>
     </div>
