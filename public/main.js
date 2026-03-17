@@ -37,51 +37,40 @@ function initHeroScene() {
     0xe8c840, 0x9b6dff, 0x5b8cf7, 0xe05555,
     0xe07830, 0x3ec97a, 0xd4a0ff, 0xe06090,
   ];
-  const ICONS = ['⚡', '🃏', '🏆', '🔥', '✨', '🌟', '💎', '🎴'];
+  const CARD_ASSETS = [
+    'assets/cards/charizard.png',
+    'assets/cards/blastoise.png',
+    'assets/cards/venusaur.png',
+    'assets/cards/umbreon.png',
+    'assets/cards/blue-eyes.jpg',
+    'assets/cards/dark-magician.jpg',
+    'assets/cards/red-eyes.jpg',
+    'assets/cards/exodia.jpg'
+  ];
+  const loader = new THREE.TextureLoader();
+
+  // Generate a single premium card back texture for all cards
+  const cb = document.createElement('canvas');
+  cb.width = 256; cb.height = 360;
+  const ctx2 = cb.getContext('2d');
+  const g2 = ctx2.createLinearGradient(0, 0, 0, 360);
+  g2.addColorStop(0, '#14103a'); g2.addColorStop(1, '#0a0a1e');
+  ctx2.fillStyle = g2; ctx2.fillRect(0, 0, 256, 360);
+  ctx2.strokeStyle = '#e8c840'; ctx2.lineWidth = 7; ctx2.strokeRect(10, 10, 236, 340);
+  for (let r = 0; r < 10; r++) for (let cc = 0; cc < 7; cc++) {
+    ctx2.fillStyle = 'rgba(232,200,64,0.07)';
+    ctx2.fillRect(18 + cc * 32, 18 + r * 32, 22, 22);
+  }
+  ctx2.font = 'bold 72px serif'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillStyle = '#e8c840'; ctx2.globalAlpha = 0.35;
+  ctx2.fillText('P', 128, 180); ctx2.globalAlpha = 1;
+  const backTex = new THREE.CanvasTexture(cb);
+
   const cards = [];
 
   PALETTE.forEach((col, i) => {
-    // Draw card face on canvas
-    const c = document.createElement('canvas');
-    c.width = 256; c.height = 360;
-    const ctx = c.getContext('2d');
-    const g = ctx.createLinearGradient(0, 0, 256, 360);
-    g.addColorStop(0, '#0e0e20'); g.addColorStop(1, '#18103a');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, 256, 360);
-    ctx.strokeStyle = `#${col.toString(16).padStart(6, '0')}`;
-    ctx.lineWidth = 7; ctx.strokeRect(10, 10, 236, 340);
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-    ctx.lineWidth = 2; ctx.strokeRect(20, 20, 216, 320);
-    // Scanlines
-    for (let y = 0; y < 360; y += 12) {
-      ctx.fillStyle = `rgba(255,255,255,${0.012})`;
-      ctx.fillRect(0, y, 256, 3);
-    }
-    ctx.font = 'bold 58px serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = `#${col.toString(16).padStart(6, '0')}`;
-    ctx.globalAlpha = 0.55;
-    ctx.fillText(ICONS[i], 128, 180);
-    ctx.globalAlpha = 1;
-
-    const faceTex = new THREE.CanvasTexture(c);
-
-    // Card back
-    const cb = document.createElement('canvas');
-    cb.width = 256; cb.height = 360;
-    const ctx2 = cb.getContext('2d');
-    const g2 = ctx2.createLinearGradient(0, 0, 0, 360);
-    g2.addColorStop(0, '#14103a'); g2.addColorStop(1, '#0a0a1e');
-    ctx2.fillStyle = g2; ctx2.fillRect(0, 0, 256, 360);
-    ctx2.strokeStyle = '#e8c840'; ctx2.lineWidth = 7; ctx2.strokeRect(10, 10, 236, 340);
-    for (let r = 0; r < 10; r++) for (let cc = 0; cc < 7; cc++) {
-      ctx2.fillStyle = 'rgba(232,200,64,0.07)';
-      ctx2.fillRect(18 + cc * 32, 18 + r * 32, 22, 22);
-    }
-    ctx2.font = 'bold 72px serif'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
-    ctx2.fillStyle = '#e8c840'; ctx2.globalAlpha = 0.35;
-    ctx2.fillText('P', 128, 180); ctx2.globalAlpha = 1;
-    const backTex = new THREE.CanvasTexture(cb);
+    const faceTex = loader.load(CARD_ASSETS[i]);
+    if (typeof THREE.sRGBEncoding !== 'undefined') faceTex.encoding = THREE.sRGBEncoding;
 
     const geo  = new THREE.BoxGeometry(1.38, 1.96, 0.022);
     const mats = [
@@ -89,7 +78,7 @@ function initHeroScene() {
       new THREE.MeshPhongMaterial({ color: 0x080818 }),
       new THREE.MeshPhongMaterial({ color: 0x080818 }),
       new THREE.MeshPhongMaterial({ color: 0x080818 }),
-      new THREE.MeshPhongMaterial({ map: faceTex, shininess: 180, specular: 0xffffff }),
+      new THREE.MeshPhongMaterial({ map: faceTex, shininess: 120, specular: 0x222222 }),
       new THREE.MeshPhongMaterial({ map: backTex, shininess: 60 }),
     ];
     const mesh = new THREE.Mesh(geo, mats);
