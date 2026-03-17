@@ -118,13 +118,13 @@ app.get('/api/ebay', async (req, res) => {
     });
 
     console.log(`eBay HTML scrape: found ${items.length} items`);
-    if (items.length === 0) throw new Error('No items parsed from HTML — selector may have changed');
+    if (items.length === 0) throw new Error('No items parsed from HTML — selector may have changed. HTML start: ' + html.substring(0, 500));
 
     setCache(cacheKey, items, 10 * 60 * 1000);
     res.json({ source: 'live', items });
   } catch (err) {
     console.error('eBay fetch error:', err.message);
-    res.json({ source: 'error', items: [] });
+    res.json({ source: 'error', items: [], debug: err.message });
   }
 });
 
