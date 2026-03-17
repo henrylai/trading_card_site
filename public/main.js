@@ -5,13 +5,6 @@
 
 'use strict';
 
-// ─── State ────────────────────────────────────────────────────────────────────
-let allCards = [];
-let activeFilter = 'all';
-let activeSort = 'newest';
-
-const CAT_EMOJI  = { pokemon: '⚡', yugioh: '🃏', other: '✨' };
-const CAT_LABEL  = { pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh', other: 'Collectible' };
 
 // ─── THREE.JS HERO ────────────────────────────────────────────────────────────
 function initHeroScene() {
@@ -217,54 +210,6 @@ function esc(s) {
 }
 function parsePrice(p) { return p ? parseFloat(p.replace(/[^0-9.]/g,'')) || 0 : 0; }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
-function renderCards() {
-  const grid  = document.getElementById('card-grid');
-  const empty = document.getElementById('listings-empty');
-  if (!grid) return;
-
-  let filtered = allCards.filter(c => activeFilter === 'all' || c.category === activeFilter);
-  if      (activeSort === 'price-asc')   filtered.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-  else if (activeSort === 'price-desc')  filtered.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
-  else if (activeSort === 'featured')    filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-
-  if (!filtered.length) {
-    grid.innerHTML = '';
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-    grid.innerHTML = filtered.map((c, i) => createCardHTML(c, i)).join('');
-    observeElements();
-  }
-  const el = document.getElementById('statTotal');
-  if (el && allCards.length) el.textContent = allCards.length;
-}
-
-// ─── FETCH eBay ───────────────────────────────────────────────────────────────
-async function fetchEbay() {
-  document.getElementById('listings-loading').style.display = 'block';
-  document.getElementById('listings-error').style.display   = 'none';
-  try {
-    const res  = await fetch('/api/ebay');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    allCards   = data.items || [];
-    if (data.source === 'error' || allCards.length === 0) throw new Error('Empty or error response');
-  } catch (e) {
-    console.warn('eBay fetch failed:', e.message);
-    allCards = [];
-    document.getElementById('listings-error').style.display = 'block';
-    
-    // Hide filters and "View All" button since we are showing the fallback banner
-    const filters = document.querySelector('.filters-bar');
-    if (filters) filters.style.display = 'none';
-    const viewAll = document.getElementById('view-all-wrap');
-    if (viewAll) viewAll.style.display = 'none';
-  } finally {
-    document.getElementById('listings-loading').style.display = 'none';
-    renderCards();
-  }
-}
 
 // ─── FETCH Instagram ──────────────────────────────────────────────────────────
 async function fetchInstagram(username, gridId) {
@@ -291,19 +236,7 @@ async function fetchInstagram(username, gridId) {
   observeElements();
 }
 
-// ─── FILTERS ──────────────────────────────────────────────────────────────────
-function initFilters() {
-  document.querySelectorAll('.pill').forEach(p => {
-    p.addEventListener('click', () => {
-      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-      p.classList.add('active');
-      activeFilter = p.dataset.filter;
-      renderCards();
-    });
-  });
-  const sel = document.getElementById('sortSelect');
-  sel?.addEventListener('change', () => { activeSort = sel.value; renderCards(); });
-}
+
 
 // ─── NAVBAR ───────────────────────────────────────────────────────────────────
 function initNavbar() {
@@ -340,11 +273,9 @@ function initSmoothScroll() {
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
-  initFilters();
   initSmoothScroll();
   initHeroScene();
   observeElements();
-  fetchEbay();
   fetchInstagram('pokemarket92',   'ig-grid-pokemon');
   fetchInstagram('yugiohmaster92', 'ig-grid-yugioh');
 });
