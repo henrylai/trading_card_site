@@ -128,50 +128,49 @@ app.get('/api/ebay', async (req, res) => {
   }
 });
 
-// ─── Instagram Route ──────────────────────────────────────────────────────────
+// ─── Instagram Route (RapidAPI) ───────────────────────────────────────────────
 app.get('/api/instagram', async (req, res) => {
   const username = (req.query.user || '').replace(/[^a-zA-Z0-9_.]/g, '');
   if (!username) return res.status(400).json({ error: 'Missing ?user= parameter' });
 
   const cacheKey = `instagram_${username}`;
   const cached = getCached(cacheKey);
+  // Cache for 60 mins to protect the RapidAPI 500-request tier limit
   if (cached) return res.json({ source: 'cache', posts: cached });
 
   try {
-    const igUrl = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`;
-    const igController = new AbortController();
-    const igTimer = setTimeout(() => igController.abort(), 10000);
-    const response = await fetch(igUrl, {
-      signal: igController.signal,
+    const response = await fetch('https://instagram120.p.rapidapi.com/api/instagram/posts', {
+      method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 9; GM1903 Build/PKQ1.190110.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/75.0.3770.143 Mobile Safari/537.36 Instagram 101.0.0.15.120',
-        'x-ig-app-id': '936619743392459',
-        'Accept': 'application/json',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Referer': 'https://www.instagram.com/',
-        'Origin': 'https://www.instagram.com',
+        'Content-Type': 'application/json',
+        'x-rapidapi-host': 'instagram120.p.rapidapi.com',
+        'x-rapidapi-key': '703e89400dmsh576089637cb3e9cp1b4899jsn300f962e0955'
       },
+      body: JSON.stringify({ username: username })
     });
-    clearTimeout(igTimer);
 
-    if (!response.ok) throw new Error(`Instagram responded with ${response.status}`);
-
+    if (!response.ok) throw new Error(`RapidAPI responded with ${response.status}`);
     const data = await response.json();
-    const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges || [];
 
-    const posts = edges.slice(0, 12).map(({ node }) => ({
-      id: node.id,
-      imageUrl: node.display_url || node.thumbnail_src,
-      caption: node.edge_media_to_caption?.edges?.[0]?.node?.text || '',
-      permalink: `https://www.instagram.com/p/${node.shortcode}/`,
-      timestamp: new Date(node.taken_at_timestamp * 1000).toISOString(),
-      isVideo: node.is_video,
-    }));
+    if (!data.result || !data.result.edges) {
+      throw new Error('RapidAPI returned invalid format');
+    }
 
-    if (posts.length === 0) throw new Error('No posts');
+    const posts = data.result.edges.slice(0, 12).map(e => {
+      const node = e.node;
+      return {
+        id: node.id,
+        caption: node.caption?.text || '',
+        permalink: 'https://instagram.com/p/' + node.code + '/',
+        imageUrl: node.image_versions2?.candidates?.[0]?.url || ''
+      };
+    }).filter(p => p.imageUrl); // Ensure valid image
 
-    setCache(cacheKey, posts, 15 * 60 * 1000);
+    if (posts.length === 0) throw new Error('No valid posts extracted');
+
+    setCache(cacheKey, posts, 60 * 60 * 1000); // 1-hour cache expiration
     res.json({ source: 'live', posts });
+
   } catch (err) {
     console.error(`Instagram fetch error (${username}):`, err.message);
     res.json({ source: 'unavailable', posts: [], profileUrl: `https://www.instagram.com/${username}/` });
