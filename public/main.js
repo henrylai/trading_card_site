@@ -175,29 +175,47 @@ function initHeroScene() {
   })();
 }
 
+const CAT_EMOJI = { pokemon: '⚡', yugioh: '🃏', other: '✨' };
+const CAT_LABEL = { pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh', other: 'Collectible' };
+
+let allProducts = [];
+let currentFilter = 'all';
+let showCount = 8;
+
 // ─── CARD HTML ────────────────────────────────────────────────────────────────
 function createCardHTML(card, idx) {
-  const featured = card.featured || parsePrice(card.price) >= 50;
+  const featured = card.featured || parsePrice(card.price) >= 100;
   const emoji    = CAT_EMOJI[card.category] || '✨';
   const label    = CAT_LABEL[card.category] || 'Collectible';
-  const price    = card.price || 'View listing';
+  const price    = typeof card.price === 'number' ? `$${card.price.toFixed(2)}` : (card.price || 'View listing');
   const delay    = (idx % 12) * 45;
+  const imageUrl = card.image || '';
+  
+  // High-quality category placeholders
+  let placeholder = 'assets/cards/card_back.png';
+  if (card.category === 'pokemon') placeholder = 'assets/cards/pokemon-back.png';
+  if (card.category === 'yugioh')  placeholder = 'assets/cards/yugioh-back.png';
+
   return `
     <div class="card-item fade-in" data-category="${card.category}" style="animation-delay:${delay}ms">
       <div class="card-image-wrap">
-        ${card.image
-          ? `<img src="${esc(card.image)}" alt="${esc(card.title)}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'" />`
-          : ''}
-        <div class="card-placeholder" style="${card.image ? 'display:none' : ''}">${emoji}</div>
+        ${imageUrl 
+          ? `<img src="${esc(imageUrl)}" alt="${esc(card.title)}" class="card-img" loading="lazy" onerror="this.src='${placeholder}';this.nextElementSibling.style.display='none'">` 
+          : `<img src="${placeholder}" class="card-img" alt="Card back">`}
+        
+        <div class="card-placeholder" style="${imageUrl ? 'display:none' : 'display:flex'}">
+          ${card.category === 'other' ? `<span class="placeholder-emoji">${emoji}</span>` : ''}
+        </div>
+        
         <div class="card-badge-wrap">
-          <span class="cat-badge">${label}</span>
           ${featured ? '<span class="featured-badge">⭐ Featured</span>' : ''}
+          <span class="cat-badge">${label}</span>
         </div>
       </div>
       <div class="card-body">
-        <div class="card-title" title="${esc(card.title)}">${esc(card.title)}</div>
-        <div class="card-price">${esc(price)}</div>
-        <a href="${esc(card.link)}" target="_blank" rel="noopener" class="card-btn">View on eBay ↗</a>
+        <h3 class="card-title" title="${esc(card.title)}">${esc(card.title)}</h3>
+        <div class="card-price">${price}</div>
+        <a href="${esc(card.url || card.link)}" target="_blank" rel="noopener" class="card-btn">View on eBay ↗</a>
       </div>
     </div>`;
 }
@@ -205,8 +223,101 @@ function createCardHTML(card, idx) {
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function parsePrice(p) { return p ? parseFloat(p.replace(/[^0-9.]/g,'')) || 0 : 0; }
+function parsePrice(p) { return typeof p === 'number' ? p : parseFloat(String(p).replace(/[^0-9.]/g,'')) || 0; }
 
+// ─── FETCH EBAY ───────────────────────────────────────────────────────────────
+async function fetchEbayProducts() {
+  const grid = document.getElementById('card-grid');
+  const loading = document.getElementById('listings-loading');
+  const error = document.getElementById('listings-error');
+  if (!grid) return;
+
+  try {
+    const res = await fetch('/api/ebay');
+    const data = await res.json();
+    
+    if (data.source === 'error') throw new Error('API failure');
+    
+    allProducts = data.items || [];
+    if (data.source === 'fallback') error.style.display = 'block';
+
+    renderListings();
+    updateHeroStats();
+  } catch (e) {
+    console.error('eBay fetch error:', e);
+    loading.style.display = 'none';
+    error.style.display = 'block';
+  }
+}
+
+function renderListings() {
+  const grid = document.getElementById('card-grid');
+  const loading = document.getElementById('listings-loading');
+  const empty = document.getElementById('listings-empty');
+  const showMoreWrap = document.getElementById('show-more-wrap');
+  
+  if (!grid) return;
+  loading.style.display = 'none';
+  
+  let products = [...allProducts];
+
+  // 1. Filter
+  if (currentFilter !== 'all') {
+    products = products.filter(p => p.category === currentFilter);
+  }
+
+  // 2. Sort
+  const sort = document.getElementById('sortSelect')?.value || 'newest';
+  if (sort === 'price-asc') products.sort((a,b) => parsePrice(a.price) - parsePrice(b.price));
+  else if (sort === 'price-desc') products.sort((a,b) => parsePrice(b.price) - parsePrice(a.price));
+
+  if (products.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    if (showMoreWrap) showMoreWrap.style.display = 'none';
+  } else {
+    empty.style.display = 'none';
+    
+    // Pagination
+    const visibleProducts = products.slice(0, showCount);
+    grid.innerHTML = visibleProducts.map((p, i) => createCardHTML(p, i)).join('');
+    
+    if (showMoreWrap) {
+      showMoreWrap.style.display = (products.length > showCount) ? 'block' : 'none';
+    }
+  }
+  
+  observeElements();
+}
+
+function handleShowMore() {
+  showCount += 8;
+  renderListings();
+}
+
+function updateHeroStats() {
+  const el = document.getElementById('statTotal');
+  if (el) el.innerText = allProducts.length || '—';
+}
+
+function initFilters() {
+  document.querySelectorAll('.filter-bar .pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector('.filter-bar .pill.active')?.classList.remove('active');
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      showCount = 8; // Reset on filter
+      renderListings();
+    });
+  });
+
+  document.getElementById('sortSelect')?.addEventListener('change', () => {
+    showCount = 8; // Reset on sort
+    renderListings();
+  });
+
+  document.getElementById('btn-show-more')?.addEventListener('click', handleShowMore);
+}
 
 // ─── FETCH Instagram ──────────────────────────────────────────────────────────
 async function fetchInstagram(username, gridId) {
@@ -273,6 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initHeroScene();
   observeElements();
+  fetchEbayProducts();
+  initFilters();
   fetchInstagram('pokemarket92',   'ig-grid-pokemon');
   fetchInstagram('yugiohmaster92', 'ig-grid-yugioh');
 });

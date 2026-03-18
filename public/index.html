@@ -26,6 +26,7 @@
         <span class="logo-text">PokéMarket<span class="logo-accent">92</span></span>
       </a>
       <ul class="nav-links">
+        <li><a href="#listings">Listings</a></li>
         <li><a href="#instagram">Instagram</a></li>
         <li><a href="#about">About</a></li>
         <li>
@@ -39,6 +40,7 @@
       </button>
     </div>
     <div class="mobile-menu" id="mobileMenu">
+      <a href="#listings" onclick="document.getElementById('mobileMenu').classList.remove('open')">Listings</a>
       <a href="#instagram" onclick="document.getElementById('mobileMenu').classList.remove('open')">Instagram</a>
       <a href="#about" onclick="document.getElementById('mobileMenu').classList.remove('open')">About</a>
       <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener">🛒 eBay Store</a>
@@ -46,7 +48,7 @@
   </nav>
 
   <!-- ─── HERO ─── -->
-  <header class="hero" id="hero">
+<header class="hero" id="hero">
     <canvas id="hero-canvas"></canvas>
     <div class="hero-overlay">
       <div class="hero-content">
@@ -55,13 +57,12 @@
         </h1>
         <p class="hero-sub">Pokémon · Yu-Gi-Oh Trading Cards</p>
         <div class="hero-ctas">
-          <a href="#instagram" class="btn-primary">View Instagram ↓</a>
+          <a href="#listings" class="btn-primary">View Listings ↓</a>
           <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">eBay Store ↗</a>
         </div>
       </div>
     </div>
   </header>
-
 
   <!-- ─── INSTAGRAM ─── -->
   <section class="instagram-section" id="instagram">
@@ -101,6 +102,61 @@
           </div>
           <a href="https://www.instagram.com/yugiohmaster92/" target="_blank" rel="noopener" class="ig-view-more">View all on Instagram ↗</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FILTER BAR ─── -->
+  <section class="filter-bar" id="listings">
+    <div class="container">
+      <div class="filter-inner">
+        <span class="filter-label">Filter:</span>
+        <div class="filter-pills">
+          <button class="pill active" data-filter="all">⚡ All</button>
+          <button class="pill pokemon" data-filter="pokemon">Pokémon</button>
+          <button class="pill yugioh"  data-filter="yugioh">🃏 Yu-Gi-Oh</button>
+          <button class="pill other"   data-filter="other">✨ Collectibles</button>
+        </div>
+        <div class="sort-wrap">
+          <select class="sort-select" id="sortSelect">
+            <option value="newest">Newest First</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LISTINGS ─── -->
+  <section class="listings-section">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 class="section-title">Live eBay Listings</h2>
+        <p class="section-sub">Auto-fetched from <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener">ig_pokemarket92</a></p>
+      </div>
+      <div id="listings-loading" class="loading-state">
+        <div class="spinner-ring"></div>
+        <p>Fetching live listings…</p>
+      </div>
+      <div id="listings-error" class="error-state" style="display:none;">
+        <span class="error-icon">📡</span>
+        <p>Showing sample listings — live data temporarily unavailable.</p>
+      </div>
+      
+      <div id="card-grid" class="card-grid"></div>
+
+      <div id="listings-empty" class="empty-state" style="display:none;">
+        <span>🃏</span>
+        <p>No cards in this category right now.<br/><a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank">Browse the full store ↗</a></p>
+      </div>
+
+      <div id="show-more-wrap" class="show-more-wrap fade-in" style="display:none; text-align: center; margin: 32px 0;">
+        <button id="btn-show-more" class="btn-secondary">Show More Listings ↓</button>
+      </div>
+
+      <div class="view-all-wrap fade-in">
+        <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">View All on eBay ↗</a>
       </div>
     </div>
   </section>

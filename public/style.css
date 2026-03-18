@@ -1,4 +1,4 @@
-﻿/* ════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    PokéMarket92 — style.css (Dark-only, night-friendly)
    ════════════════════════════════════════════════════════════════ */
 
@@ -693,6 +693,29 @@ img { max-width: 100%; display: block; }
   .hero-title { font-size: clamp(1.7rem, 10vw, 2.8rem); }
 }
 
+/* ─── SHOW MORE ─── */
+.show-more-wrap {
+  text-align: center;
+  margin: 40px 0;
+}
+#btn-show-more {
+  min-width: 220px;
+  background: rgba(180, 160, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur);
+}
+#btn-show-more:hover {
+  background: rgba(232, 200, 64, 0.08);
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-2px);
+}
 /* ─── ABOUT STATS ─── */
 .about-stats {
   display: flex;
@@ -721,3 +744,7 @@ img { max-width: 100%; display: block; }
   letter-spacing: 1px;
 }
 
+
+/*  OTHER CATEGORY (COLLECTIBLES)  */
+.pill.other.active { background: var(--text) !important; color: #111 !important; border-color: var(--text) !important; }
+.card-item[data-category='other'] { --c-accent: #e5e7eb; --c-glow: rgba(255,255,255,0.1); }

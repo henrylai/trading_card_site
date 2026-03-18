@@ -60,6 +60,66 @@ function detectCategory(title) {
   return 'other';
 }
 
+// ─── eBay Route (RapidAPI) ──────────────────────────────────────────────────
+app.get('/api/ebay', async (req, res) => {
+  const cacheKey = 'ebay_listings';
+  const cached = getCached(cacheKey);
+  
+  if (cached && cached.length > 0) {
+    console.log('Serving eBay from cache');
+    return res.json({ source: 'cache', items: cached });
+  }
+
+  console.log('Fetching live eBay data...');
+  try {
+    const response = await fetch('https://ebay41.p.rapidapi.com/sellers/ig_pokemarket92/products?sort=best_match&page=1&limit=60', {
+      headers: {
+        'x-rapidapi-host': 'ebay41.p.rapidapi.com',
+        'x-rapidapi-key': '703e89400dmsh576089637cb3e9cp1b4899jsn300f962e0955'
+      }
+    });
+
+    if (!response.ok) throw new Error(`RapidAPI responded with ${response.status}`);
+    const json = await response.json();
+
+    if (!json.success || !json.data || !json.data.items) {
+      console.warn('API success: false or missing items');
+      throw new Error('RapidAPI returned failure or invalid format');
+    }
+
+    const items = json.data.items.map(item => ({
+      ...item,
+      category: detectCategory(item.title)
+    }));
+
+    console.log(`Successfully fetched ${items.length} items from API`);
+    setCache(cacheKey, items, 30 * 60 * 1000);
+    res.json({ source: 'live', items });
+
+  } catch (err) {
+    console.error('eBay fetch error:', err.message);
+    try {
+      const fallbackPath = path.join(__dirname, 'data', 'ebay_fallback.json');
+      if (fs.existsSync(fallbackPath)) {
+        console.log('Loading eBay fallback data...');
+        const fallbackRaw = fs.readFileSync(fallbackPath, 'utf8');
+        const fallbackData = JSON.parse(fallbackRaw);
+        const items = fallbackData.data.items.map(item => ({
+          ...item,
+          category: detectCategory(item.title)
+        }));
+        console.log(`Loaded ${items.length} items from fallback`);
+        return res.json({ source: 'fallback', items });
+      } else {
+        console.error('Fallback file not found at:', fallbackPath);
+      }
+    } catch (fallbackErr) {
+      console.error('eBay fallback error:', fallbackErr.message);
+    }
+    res.json({ source: 'error', items: [] });
+  }
+});
+
 
 // ─── Instagram Route (RapidAPI) ───────────────────────────────────────────────
 app.get('/api/instagram', async (req, res) => {
