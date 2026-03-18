@@ -17,7 +17,7 @@ function initHeroScene() {
   renderer.setClearColor(0x000000, 0);
 
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
   camera.position.set(0, 0, 8);
 
   // ── Lights ──
@@ -72,7 +72,7 @@ function initHeroScene() {
     const faceTex = loader.load(CARD_ASSETS[i]);
     if (typeof THREE.sRGBEncoding !== 'undefined') faceTex.encoding = THREE.sRGBEncoding;
 
-    const geo  = new THREE.BoxGeometry(1.38, 1.96, 0.022);
+    const geo  = new THREE.BoxGeometry(1.75, 2.48, 0.025);
     const mats = [
       new THREE.MeshPhongMaterial({ color: 0x080818 }),
       new THREE.MeshPhongMaterial({ color: 0x080818 }),
@@ -83,7 +83,7 @@ function initHeroScene() {
     ];
     const mesh = new THREE.Mesh(geo, mats);
     const angle  = (i / PALETTE.length) * Math.PI * 2;
-    const radius = 3.1;
+    const radius = 3.8;
     mesh.position.set(
       Math.cos(angle) * radius * 1.4,
       Math.sin(angle) * radius * 0.55,
