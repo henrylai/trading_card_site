@@ -9,6 +9,7 @@
 
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const cheerio = require('cheerio');
 const rateLimit = require('express-rate-limit');
@@ -105,6 +106,17 @@ app.get('/api/instagram', async (req, res) => {
 
   } catch (err) {
     console.error(`Instagram fetch error (${username}):`, err.message);
+    try {
+      const fallbackPath = path.join(__dirname, 'data', 'fallback_ig.json');
+      if (fs.existsSync(fallbackPath)) {
+        const fallbackData = JSON.parse(fs.readFileSync(fallbackPath, 'utf8'));
+        if (fallbackData[username]) {
+          return res.json({ source: 'fallback', posts: fallbackData[username] });
+        }
+      }
+    } catch (fallbackErr) {
+      console.error(`Fallback read error for ${username}:`, fallbackErr.message);
+    }
     res.json({ source: 'unavailable', posts: [], profileUrl: `https://www.instagram.com/${username}/` });
   }
 });
