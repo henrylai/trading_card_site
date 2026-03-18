@@ -102,7 +102,7 @@ function initHeroScene() {
   });
 
   // ── Particles ──
-  const N = 500;
+  const N = 1000;
   const pos = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     pos[i * 3]     = (Math.random() - 0.5) * 28;
@@ -112,7 +112,7 @@ function initHeroScene() {
   const pGeo = new THREE.BufferGeometry();
   pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
-    color: 0xe8c840, size: 0.038, transparent: true, opacity: 0.35, sizeAttenuation: true,
+    color: 0xe8c840, size: 0.055, transparent: true, opacity: 0.7, sizeAttenuation: true,
   }));
   scene.add(particles);
 
