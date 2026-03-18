@@ -161,7 +161,7 @@ app.get('/api/instagram', async (req, res) => {
 
     if (posts.length === 0) throw new Error('No valid posts extracted');
 
-    setCache(cacheKey, posts, 60 * 60 * 1000); // 1-hour cache expiration
+    setCache(cacheKey, posts, 24 * 60 * 60 * 1000); // 24-hour cache expiration
     res.json({ source: 'live', posts });
 
   } catch (err) {
