@@ -17,8 +17,8 @@ function initHeroScene() {
   renderer.setClearColor(0x000000, 0);
 
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-  camera.position.set(0, 0, 8);
+  const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 7.2);
 
   // ── Lights ──
   scene.add(new THREE.AmbientLight(0x100818, 1.2));
@@ -41,7 +41,7 @@ function initHeroScene() {
     'assets/cards/charizard.png',
     'assets/cards/blastoise.png',
     'assets/cards/venusaur.png',
-    'assets/cards/umbreon.png',
+    'assets/cards/pikachu.png',
     'assets/cards/blue-eyes.jpg',
     'assets/cards/dark-magician.jpg',
     'assets/cards/red-eyes.jpg',
@@ -83,11 +83,11 @@ function initHeroScene() {
     ];
     const mesh = new THREE.Mesh(geo, mats);
     const angle  = (i / PALETTE.length) * Math.PI * 2;
-    const radius = 3.8;
+    const radius = 3.9;
     mesh.position.set(
-      Math.cos(angle) * radius * 1.4,
-      Math.sin(angle) * radius * 0.55,
-      (i % 3) * -0.5
+      Math.cos(angle) * radius * 1.5,
+      Math.sin(angle) * radius * 0.7,
+      (i % 3) * -0.8
     );
     mesh.rotation.set(Math.sin(angle) * 0.14, Math.cos(angle) * 0.4, (Math.random() - 0.5) * 0.28);
     mesh.userData = {

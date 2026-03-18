@@ -184,9 +184,9 @@ img { max-width: 100%; display: block; }
 /* ─── HERO ─── */
 .hero {
   position: relative;
-  height: 55vh;
+  height: 42vh;
   min-height: 320px;
-  max-height: 650px;
+  max-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
