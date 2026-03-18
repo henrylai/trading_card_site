@@ -93,7 +93,7 @@ app.get('/api/ebay', async (req, res) => {
     }));
 
     console.log(`Successfully fetched ${items.length} items from API`);
-    setCache(cacheKey, items, 30 * 60 * 1000);
+    setCache(cacheKey, items, 24 * 60 * 60 * 1000); // 24-hour cache
     res.json({ source: 'live', items });
 
   } catch (err) {
