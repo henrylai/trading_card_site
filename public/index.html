@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokéMarket92 — Pokémon &amp; Yu-Gi-Oh Trading Cards</title>
-  <meta name="description" content="PokéMarket92 — Pokémon and Yu-Gi-Oh trading cards. Browse live eBay listings and follow us on Instagram." />
+  <meta name="description"
+    content="PokéMarket92 — Pokémon and Yu-Gi-Oh trading cards. Browse live eBay listings and follow us on Instagram." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet" />
 
   <!-- Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- ─── NAVIGATION ─── -->
@@ -48,7 +53,7 @@
   </nav>
 
   <!-- ─── HERO ─── -->
-<header class="hero" id="hero">
+  <header class="hero" id="hero">
     <canvas id="hero-canvas"></canvas>
     <div class="hero-overlay">
       <div class="hero-content">
@@ -58,7 +63,8 @@
         <p class="hero-sub">Pokémon · Yu-Gi-Oh Trading Cards</p>
         <div class="hero-ctas">
           <a href="#listings" class="btn-primary">View Listings ↓</a>
-          <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">eBay Store ↗</a>
+          <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">eBay
+            Store ↗</a>
         </div>
       </div>
     </div>
@@ -80,12 +86,16 @@
               <div class="ig-handle">@pokemarket92</div>
               <div class="ig-category-tag pokemon-tag">Pokémon Cards</div>
             </div>
-            <a href="https://www.instagram.com/pokemarket92/" target="_blank" rel="noopener" class="ig-follow-btn">Follow ↗</a>
+            <a href="https://www.instagram.com/pokemarket92/" target="_blank" rel="noopener"
+              class="ig-follow-btn">Follow ↗</a>
           </div>
           <div id="ig-grid-pokemon" class="ig-grid">
-            <div class="ig-loading"><div class="spinner-ring small"></div></div>
+            <div class="ig-loading">
+              <div class="spinner-ring small"></div>
+            </div>
           </div>
-          <a href="https://www.instagram.com/pokemarket92/" target="_blank" rel="noopener" class="ig-view-more">View all on Instagram ↗</a>
+          <a href="https://www.instagram.com/pokemarket92/" target="_blank" rel="noopener" class="ig-view-more">View all
+            on Instagram ↗</a>
         </div>
         <!-- Yu-Gi-Oh -->
         <div class="ig-column fade-in">
@@ -95,12 +105,16 @@
               <div class="ig-handle">@yugiohmaster92</div>
               <div class="ig-category-tag yugioh-tag">Yu-Gi-Oh Cards</div>
             </div>
-            <a href="https://www.instagram.com/yugiohmaster92/" target="_blank" rel="noopener" class="ig-follow-btn">Follow ↗</a>
+            <a href="https://www.instagram.com/yugiohmaster92/" target="_blank" rel="noopener"
+              class="ig-follow-btn">Follow ↗</a>
           </div>
           <div id="ig-grid-yugioh" class="ig-grid">
-            <div class="ig-loading"><div class="spinner-ring small"></div></div>
+            <div class="ig-loading">
+              <div class="spinner-ring small"></div>
+            </div>
           </div>
-          <a href="https://www.instagram.com/yugiohmaster92/" target="_blank" rel="noopener" class="ig-view-more">View all on Instagram ↗</a>
+          <a href="https://www.instagram.com/yugiohmaster92/" target="_blank" rel="noopener" class="ig-view-more">View
+            all on Instagram ↗</a>
         </div>
       </div>
     </div>
@@ -112,10 +126,10 @@
       <div class="filter-inner">
         <span class="filter-label">Filter:</span>
         <div class="filter-pills">
-          <button class="pill active" data-filter="all">⚡ All</button>
+          <button class="pill active" data-filter="all">All</button>
           <button class="pill pokemon" data-filter="pokemon">Pokémon</button>
-          <button class="pill yugioh"  data-filter="yugioh">🃏 Yu-Gi-Oh</button>
-          <button class="pill other"   data-filter="other">✨ Collectibles</button>
+          <button class="pill yugioh" data-filter="yugioh">Yu-Gi-Oh</button>
+          <button class="pill other" data-filter="other">Collectibles</button>
         </div>
         <div class="sort-wrap">
           <select class="sort-select" id="sortSelect">
@@ -133,7 +147,8 @@
     <div class="container">
       <div class="section-header fade-in">
         <h2 class="section-title">Live eBay Listings</h2>
-        <p class="section-sub">Auto-fetched from <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener">ig_pokemarket92</a></p>
+        <p class="section-sub">Auto-fetched from <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank"
+            rel="noopener">ig_pokemarket92</a></p>
       </div>
       <div id="listings-loading" class="loading-state">
         <div class="spinner-ring"></div>
@@ -143,12 +158,13 @@
         <span class="error-icon">📡</span>
         <p>Showing sample listings — live data temporarily unavailable.</p>
       </div>
-      
+
       <div id="card-grid" class="card-grid"></div>
 
       <div id="listings-empty" class="empty-state" style="display:none;">
         <span>🃏</span>
-        <p>No cards in this category right now.<br/><a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank">Browse the full store ↗</a></p>
+        <p>No cards in this category right now.<br /><a href="https://www.ebay.com/usr/ig_pokemarket92"
+            target="_blank">Browse the full store ↗</a></p>
       </div>
 
       <div id="show-more-wrap" class="show-more-wrap fade-in" style="display:none; text-align: center; margin: 32px 0;">
@@ -156,7 +172,8 @@
       </div>
 
       <div class="view-all-wrap fade-in">
-        <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">View All on eBay ↗</a>
+        <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener" class="btn-secondary">View All
+          on eBay ↗</a>
       </div>
     </div>
   </section>
@@ -165,22 +182,39 @@
   <section class="about-section" id="about">
     <div class="container">
       <div class="about-text fade-in" style="max-width: 800px; margin: 0 auto; text-align: center;">
-          <img src="assets/logo.png" alt="PokéMarket92 Logo" style="width: 220px; height: auto; border-radius: 16px; margin: 0 auto 32px;" onerror="this.style.display='none'" />
-          <h2 class="section-title">From One Collector to Another</h2>
-          <p>Hey there! I'm the collector behind PokéMarket92. What started as a lifelong passion for ripping nostalgic packs and hunting for pristine holos has grown into this carefully curated shop.</p>
-          <p>Every single card you see is hand-graded, sleeved, and shipped securely by me. Whether you're chasing that elusive PSA 10 Charizard or building a retro Yu-Gi-Oh deck, my goal is to help you find precisely what you're looking for with the care your collection deserves.</p>
-          <div class="about-stats" style="justify-content: center;">
-            <div class="stat"><span class="stat-num">2700+</span><span class="stat-label">Cards Handled</span></div>
-            <div class="stat"><span class="stat-num">3000+</span><span class="stat-label">Total Followers</span></div>
-            <div class="stat"><span class="stat-num">99.4%</span><span class="stat-label">Positive Feedback</span></div>
-          </div>
+        <img src="assets/logo.png" alt="PokéMarket92 Logo"
+          style="width: 220px; height: auto; border-radius: 16px; margin: 0 auto 32px;"
+          onerror="this.style.display='none'" />
+        <h2 class="section-title">From One Collector to Another</h2>
+        <p>Hey there! I'm the collector behind PokéMarket92. What started as a lifelong passion for ripping nostalgic
+          packs and hunting for pristine holos has grown into this carefully curated shop.</p>
+        <p>Every single card you see is hand-graded, sleeved, and shipped securely by me. Whether you're chasing that
+          elusive PSA 10 Charizard or building a retro Yu-Gi-Oh deck, my goal is to help you find precisely what you're
+          looking for with the care your collection deserves.</p>
+        <div class="about-stats" style="justify-content: center;">
+          <div class="stat"><span class="stat-num">2700+</span><span class="stat-label">Cards Handled</span></div>
+          <div class="stat"><span class="stat-num">3000+</span><span class="stat-label">Total Followers</span></div>
+          <div class="stat"><span class="stat-num">99.4%</span><span class="stat-label">Positive Feedback</span></div>
         </div>
+      </div>
       <div class="about-badges fade-in">
-          <div class="badge-card"><div class="badge-icon">✅</div><div class="badge-text"><strong>Quality Graded</strong><span>Every card inspected before listing</span></div></div>
-          <div class="badge-card"><div class="badge-icon">📦</div><div class="badge-text"><strong>Fast Shipping</strong><span>Secured & shipped same day</span></div></div>
-          <div class="badge-card"><div class="badge-icon">💬</div><div class="badge-text"><strong>Collector Community</strong><span>DM us on Instagram</span></div></div>
-          <div class="badge-card"><div class="badge-icon">🏅</div><div class="badge-text"><strong>Top Rated Seller</strong><span>Trusted on eBay for years</span></div></div>
+        <div class="badge-card">
+          <div class="badge-icon">✅</div>
+          <div class="badge-text"><strong>Quality Graded</strong><span>Every card inspected before listing</span></div>
         </div>
+        <div class="badge-card">
+          <div class="badge-icon">📦</div>
+          <div class="badge-text"><strong>Fast Shipping</strong><span>Secured & shipped same day</span></div>
+        </div>
+        <div class="badge-card">
+          <div class="badge-icon">💬</div>
+          <div class="badge-text"><strong>Collector Community</strong><span>DM us on Instagram</span></div>
+        </div>
+        <div class="badge-card">
+          <div class="badge-icon">🏅</div>
+          <div class="badge-text"><strong>Top Rated Seller</strong><span>Trusted on eBay for years</span></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -190,7 +224,8 @@
       <div class="footer-inner">
         <div class="footer-brand">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="assets/logo.png" alt="PokéMarket92 Logo" style="width: 44px; height: auto; border-radius: 8px;" onerror="this.style.display='none'" />
+            <img src="assets/logo.png" alt="PokéMarket92 Logo" style="width: 44px; height: auto; border-radius: 8px;"
+              onerror="this.style.display='none'" />
             <span class="logo-text">PokéMarket<span class="logo-accent">92</span></span>
           </div>
           <p>Pokémon &amp; Yu-Gi-Oh Trading Cards</p>
@@ -208,13 +243,15 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2024 PokéMarket92 · All rights reserved · <a href="https://www.ebay.com/usr/ig_pokemarket92" target="_blank" rel="noopener">eBay Store</a></p>
-        <p class="footer-disclaimer">Independent reseller. Pokémon and Yu-Gi-Oh are trademarks of their respective owners.</p>
+        <p>© 2026 PokéMarket92 · All rights reserved · <a href="https://www.ebay.com/usr/ig_pokemarket92"
+            target="_blank" rel="noopener">eBay Store</a></p>
+        <p class="footer-disclaimer">Independent reseller. Pokémon and Yu-Gi-Oh are trademarks of their respective
+          owners.</p>
       </div>
     </div>
   </footer>
 
   <script src="main.js"></script>
 </body>
-</html>
 
+</html>

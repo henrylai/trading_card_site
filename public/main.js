@@ -175,7 +175,7 @@ function initHeroScene() {
   })();
 }
 
-const CAT_EMOJI = { pokemon: '⚡', yugioh: '🃏', other: '✨' };
+const CAT_EMOJI = { pokemon: '⚡', yugioh: '🃏', other: '🃏' };
 const CAT_LABEL = { pokemon: 'Pokémon', yugioh: 'Yu-Gi-Oh', other: 'Collectible' };
 
 let allProducts = [];
@@ -192,19 +192,19 @@ function createCardHTML(card, idx) {
   const imageUrl = card.image || '';
   
   // High-quality category placeholders
-  let placeholder = 'assets/cards/card_back.png';
+  let placeholder = '';
   if (card.category === 'pokemon') placeholder = 'assets/cards/pokemon-back.png';
-  if (card.category === 'yugioh')  placeholder = 'assets/cards/yugioh-back.png';
+  else if (card.category === 'yugioh') placeholder = 'assets/cards/yugioh-back.png';
 
   return `
     <div class="card-item fade-in" data-category="${card.category}" style="animation-delay:${delay}ms">
       <div class="card-image-wrap">
         ${imageUrl 
-          ? `<img src="${esc(imageUrl)}" alt="${esc(card.title)}" class="card-img" loading="lazy" onerror="this.src='${placeholder}';this.nextElementSibling.style.display='none'">` 
-          : `<img src="${placeholder}" class="card-img" alt="Card back">`}
+          ? `<img src="${esc(imageUrl)}" alt="${esc(card.title)}" class="card-img" loading="lazy" onerror="${placeholder ? `this.src='${placeholder}';this.nextElementSibling.style.display='none'` : `this.style.display='none';this.nextElementSibling.style.display='flex'`}">` 
+          : (placeholder ? `<img src="${placeholder}" class="card-img" alt="Card back">` : '')}
         
         <div class="card-placeholder" style="${imageUrl ? 'display:none' : 'display:flex'}">
-          ${card.category === 'other' ? `<span class="placeholder-emoji">${emoji}</span>` : ''}
+          ${(card.category === 'other' || !placeholder) ? `<span class="placeholder-emoji">${emoji}</span>` : ''}
         </div>
         
         <div class="card-badge-wrap">
